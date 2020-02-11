@@ -35,8 +35,11 @@ class SeleniumDownloadMiddleWare(object):
 
     def _get_driver(self):
         headless = self.settings.getbool('SELENIUM_HEADLESS', True)
-        driver_name = self.settings.get('SELENIUM_DRIVER_NAME', 'firefox')
-        return Webdriver(driver_name=driver_name, headless=headless).driver
+        driver_name = self.settings.get('SELENIUM_DRIVER_NAME', 'chrome')
+        executable_path = self.settings.get('SELENIUM_DRIVER_PATH')
+        return Webdriver(driver_name=driver_name,
+                         headless=headless,
+                         executable_path=executable_path).driver
 
     @classmethod
     def from_crawler(cls, crawler):
