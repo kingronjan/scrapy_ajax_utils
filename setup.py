@@ -37,6 +37,8 @@ setup(
     ],
     # 项目环境需求
     install_requires=[
-            'requests>=2.14.0'
+            'scrapy>=1.7.3',
+            'scrapy_splash>=0.7.2',
+            'selenium>=3.141.0',
         ]
 )
