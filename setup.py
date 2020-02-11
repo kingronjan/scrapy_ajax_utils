@@ -5,13 +5,10 @@ from setuptools import setup, find_packages
 setup(
     name='scrapy_ajax_utils',
     version=0.154,
-    # 简短描述
     description=(
         'ajax utils for scrapy.'
     ),
-    # 指定描述文件的格式，如果不指定默认为rst格式
     long_description_content_type='text/markdown',
-    # 指定描述文件
     long_description=open('README.md').read(),
     author='financial',
     author_email='1012593988@qq.com',
@@ -35,7 +32,6 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries'
     ],
-    # 项目环境需求
     install_requires=[
             'scrapy>=1.7.3',
             'scrapy_splash>=0.7.2',
