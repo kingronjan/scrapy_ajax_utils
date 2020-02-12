@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from scrapy_ajax_utils.utils import extract_domain_from_url
-from scrapy_ajax_utils.selenium.driver import Webdriver
+from scrapy_ajax_utils.selenium.driver import webdriver
 from scrapy_ajax_utils.selenium.request import SeleniumRequest
 
 logger = logging.getLogger(__name__)
@@ -36,9 +36,9 @@ class SeleniumDownloadMiddleWare(object):
         headless = self.settings.getbool('SELENIUM_HEADLESS', True)
         driver_name = self.settings.get('SELENIUM_DRIVER_NAME', 'chrome')
         executable_path = self.settings.get('SELENIUM_DRIVER_PATH')
-        return Webdriver(driver_name=driver_name,
+        return webdriver(driver_name=driver_name,
                          headless=headless,
-                         executable_path=executable_path).driver
+                         executable_path=executable_path)
 
     @classmethod
     def from_crawler(cls, crawler):
