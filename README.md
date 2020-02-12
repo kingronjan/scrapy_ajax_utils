@@ -7,7 +7,7 @@ utils for ajax in scrapy project. includes selenium, splash.
 
 ## Usage
 ### For selenium
-Define the selenium webdriver name, executable path and is headless in settings.py
+Define the selenium webdriver name, executable path and is headless in `settings.py`
 ```python
 # Default: chrome
 SELENIUM_DRIVER_NAME = 'chrome'
