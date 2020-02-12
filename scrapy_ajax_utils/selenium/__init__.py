@@ -17,7 +17,7 @@ def selenium_support(spider_cls):
 
 
 # 便于其它文件导入
-from .driver import Webdriver
+from .driver import webdriver
 from .request import SeleniumRequest
 from .middleware import SeleniumDownloadMiddleWare
 

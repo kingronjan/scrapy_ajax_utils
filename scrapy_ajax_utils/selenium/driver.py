@@ -9,6 +9,8 @@ def webdriver(driver_name='chrome', executable_path=None,
         user_agent = settings['DEFAULT_REQUEST_HEADERS'].get('User-Agent')
 
     if driver_name == 'firefox':
+        if executable_path is None:
+            executable_path = 'geckodriver'
         if options is None:
             options = _webdriver.FirefoxOptions()
             options.headless = headless
@@ -19,6 +21,8 @@ def webdriver(driver_name='chrome', executable_path=None,
         return _webdriver.Firefox(options=options, executable_path=executable_path, service_log_path='nul')
 
     elif driver_name == 'chrome':
+        if executable_path is None:
+            executable_path = 'chromedriver'
         if options is None:
             options = _webdriver.ChromeOptions()
             options.headless = headless
