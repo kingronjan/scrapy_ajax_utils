@@ -6,9 +6,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from scrapy_ajax_utils.utils import extract_domain_from_url
-
-from .driver import Webdriver
-from .request import SeleniumRequest
+from scrapy_ajax_utils.selenium.driver import Webdriver
+from scrapy_ajax_utils.selenium.request import SeleniumRequest
 
 logger = logging.getLogger(__name__)
 
