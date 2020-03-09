@@ -18,36 +18,42 @@ class Webdriver(object):
             settings = get_project_settings()
             self.user_agent = settings['DEFAULT_REQUEST_HEADERS'].get('User-Agent')
         else:
-           self.user_agent = user_agent
+            self.user_agent = user_agent
+        self.executable_path = executable_path
+        self.options = options
 
-        cls = self.DRIVER_CLS[self.driver_name]
-        self.driver = cls(**self._init_kwargs(executable_path, options))
+    def driver(self):
+        if self.driver_name not in self.DRIVER_CLS:
+            raise ValueError(f'not support driver: {self.driver_name}')
+        driver_cls = self.DRIVER_CLS[self.driver_name]
+        driver = driver_cls(**self._init_kwargs())
+        if isinstance(driver, webdriver.Chrome):
+            # 移除 window.navigator.webdriver
+            driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+                "source": """
+                Object.defineProperty(navigator, 'webdriver', {
+                  get: () => undefined
+                })
+              """
+            })
+        return driver
 
-    def __enter__(self):
-        return self.driver
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.quit()
-
-    def quit(self):
-        self.driver.quit()
-
-    def _init_kwargs(self, executable_path, options):
+    def _init_kwargs(self):
         if self.driver_name == 'firefox':
-            if options is None:
-                options = webdriver.FirefoxOptions()
-                options.headless = self.headless
+            if self.options is None:
+                self.options = webdriver.FirefoxOptions()
+                self.options.headless = self.headless
                 if self.disable_image:
-                    options.set_preference('permissions.default.image', 2)
-                options.set_preference('general.useragent.override', self.user_agent)
+                    self.options.set_preference('permissions.default.image', 2)
+                self.options.set_preference('general.useragent.override', self.user_agent)
             return {
-                'executable_path': executable_path,
+                'executable_path': self.executable_path,
                 'service_log_path': 'nul',  # Close log file, only work for windows.
-                'options': options
+                'options': self.options
             }
 
         elif self.driver_name == 'chrome':
-            if options is None:
+            if self.options is None:
                 options = webdriver.ChromeOptions()
                 options.headless = self.headless
                 options.add_argument(f"--user-agent={self.user_agent}")
@@ -57,12 +63,12 @@ class Webdriver(object):
                 # 规避检测
                 options.add_experimental_option('excludeSwitches', ['enable-automation', ])
             return {
-                'executable_path': executable_path,
-                'options': options
+                'executable_path': self.executable_path,
+                'options': self.options
             }
 
         else:
             return {
-                'options': options,
-                'executable_path': executable_path
+                'options': self.options,
+                'executable_path': self.executable_path
             }

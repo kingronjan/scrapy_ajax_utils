@@ -36,9 +36,10 @@ class SeleniumDownloadMiddleWare(object):
         headless = self.settings.getbool('SELENIUM_HEADLESS', True)
         driver_name = self.settings.get('SELENIUM_DRIVER_NAME', 'chrome')
         executable_path = self.settings.get('SELENIUM_DRIVER_PATH')
-        return Webdriver(driver_name=driver_name,
-                         headless=headless,
-                         executable_path=executable_path).driver
+        driver = Webdriver(driver_name=driver_name,
+                           headless=headless,
+                           executable_path=executable_path).driver()
+        return driver
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -65,8 +66,7 @@ class SeleniumDownloadMiddleWare(object):
             self.driver.get(request.url)
 
         if request.wait_until:
-            condition = EC.presence_of_element_located(request.wait_until)
-            WebDriverWait(self.driver, request.wait_time).until(condition)
+            WebDriverWait(self.driver, request.wait_time).until(request.wait_until)
 
         # Execute javascript code and save the result to meta.
         if request.script:
@@ -85,7 +85,6 @@ class SeleniumDownloadMiddleWare(object):
                 }
             )
         request.cookies = self.driver.get_cookies()
-        request.meta['driver'] = self.driver
 
         if request.cache_cookies:
             domain = extract_domain_from_url(request.url)
