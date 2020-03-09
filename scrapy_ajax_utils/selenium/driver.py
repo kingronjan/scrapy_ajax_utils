@@ -39,21 +39,23 @@ class Webdriver(object):
         return driver
 
     def _init_kwargs(self):
+        options = self.options
+
         if self.driver_name == 'firefox':
-            if self.options is None:
-                self.options = webdriver.FirefoxOptions()
-                self.options.headless = self.headless
+            if options is None:
+                options = webdriver.FirefoxOptions()
+                options.headless = self.headless
                 if self.disable_image:
-                    self.options.set_preference('permissions.default.image', 2)
-                self.options.set_preference('general.useragent.override', self.user_agent)
+                    options.set_preference('permissions.default.image', 2)
+                options.set_preference('general.useragent.override', self.user_agent)
             return {
                 'executable_path': self.executable_path,
                 'service_log_path': 'nul',  # Close log file, only work for windows.
-                'options': self.options
+                'options': options
             }
 
         elif self.driver_name == 'chrome':
-            if self.options is None:
+            if options is None:
                 options = webdriver.ChromeOptions()
                 options.headless = self.headless
                 options.add_argument(f"--user-agent={self.user_agent}")
@@ -64,11 +66,11 @@ class Webdriver(object):
                 options.add_experimental_option('excludeSwitches', ['enable-automation', ])
             return {
                 'executable_path': self.executable_path,
-                'options': self.options
+                'options': options
             }
 
         else:
             return {
-                'options': self.options,
+                'options': options,
                 'executable_path': self.executable_path
             }
