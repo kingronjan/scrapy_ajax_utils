@@ -2,7 +2,6 @@ import logging
 
 from scrapy import signals
 from scrapy.http import HtmlResponse
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from scrapy_ajax_utils.utils import extract_domain_from_url

@@ -20,7 +20,3 @@ def selenium_support(spider_cls):
 from .driver import Webdriver
 from .request import SeleniumRequest
 from .middleware import SeleniumDownloadMiddleWare
-
-from selenium.webdriver.common.by import By
-
-SeleniumBy = By
