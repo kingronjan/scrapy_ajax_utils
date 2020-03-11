@@ -60,8 +60,12 @@ class SeleniumDownloadMiddleWare(object):
 
         # 检查请求是否携带Cookies
         if request.cookies:
-            for k, v in request.cookies.items():
-                self.driver.add_cookie({'name': k, 'value': v})
+            if isinstance(request.cookies, list):
+                for cookie in request.cookies:
+                    self.driver.add_cookie(cookie)
+            else:
+                for k, v in request.cookies.items():
+                    self.driver.add_cookie({'name': k, 'value': v})
             self.driver.get(request.url)
 
         if request.wait_until:
@@ -69,9 +73,7 @@ class SeleniumDownloadMiddleWare(object):
 
         # Execute javascript code and save the result to meta.
         if request.script:
-            result = self.driver.execute_script(request.script)
-            if result is not None:
-                request.meta['js_result'] = result
+            request.meta['js_result'] = self.driver.execute_script(request.script)
 
         if request.handler:
             request.handler(self.driver, request, spider)
