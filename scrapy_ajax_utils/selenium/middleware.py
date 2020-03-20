@@ -4,9 +4,9 @@ from scrapy import signals
 from scrapy.http import HtmlResponse
 from selenium.webdriver.support.ui import WebDriverWait
 
-from scrapy_ajax_utils.utils import extract_domain_from_url
 from scrapy_ajax_utils.selenium.driver import Webdriver
 from scrapy_ajax_utils.selenium.request import SeleniumRequest
+from scrapy_ajax_utils.utils import extract_domain_from_url
 
 logger = logging.getLogger(__name__)
 
@@ -33,12 +33,14 @@ class SeleniumDownloadMiddleWare(object):
 
     def _get_driver(self):
         headless = self.settings.getbool('SELENIUM_HEADLESS', True)
+        disable_image = self.settings.get('SELENIUM_DISABLE_IMAGE', True)
         driver_name = self.settings.get('SELENIUM_DRIVER_NAME', 'chrome')
         executable_path = self.settings.get('SELENIUM_DRIVER_PATH')
-        driver = Webdriver(driver_name=driver_name,
-                           headless=headless,
-                           executable_path=executable_path).driver()
-        return driver
+        wd = Webdriver(driver_name=driver_name,
+                       headless=headless,
+                       executable_path=executable_path,
+                       disable_image=disable_image)
+        return wd.driver()
 
     @classmethod
     def from_crawler(cls, crawler):
