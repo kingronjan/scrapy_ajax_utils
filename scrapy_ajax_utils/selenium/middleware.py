@@ -36,10 +36,12 @@ class SeleniumDownloadMiddleWare(object):
         disable_image = self.settings.get('SELENIUM_DISABLE_IMAGE', True)
         driver_name = self.settings.get('SELENIUM_DRIVER_NAME', 'chrome')
         executable_path = self.settings.get('SELENIUM_DRIVER_PATH')
+        useragent = self.settings.get('USER_AGENT')
         wd = Webdriver(driver_name=driver_name,
                        headless=headless,
                        executable_path=executable_path,
-                       disable_image=disable_image)
+                       disable_image=disable_image,
+                       user_agent=useragent)
         return wd.driver()
 
     @classmethod
