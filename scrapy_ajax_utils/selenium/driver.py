@@ -50,6 +50,7 @@ class Webdriver(object):
             options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
         # 规避检测
         options.add_experimental_option('excludeSwitches', ['enable-automation', ])
+        return options
 
     def _firefox_options(self):
         options = webdriver.FirefoxOptions()
@@ -58,6 +59,7 @@ class Webdriver(object):
             options.set_preference('permissions.default.image', 2)
         if self.user_agent:
             options.set_preference('general.useragent.override', self.user_agent)
+        return options
 
     def _prepare(self, driver):
         if isinstance(driver, webdriver.Chrome):
