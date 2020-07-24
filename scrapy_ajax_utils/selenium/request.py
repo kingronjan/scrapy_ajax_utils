@@ -16,11 +16,7 @@ class SeleniumRequest(scrapy.Request):
                  script=None, cache_cookies=True,
                  handler=None, **kwargs):
 
-        # 等待条件，为元组
-        # 仅支持： presence_of_element_located
-        # 含两个元素，第一个为对应的类型（参考 selenium.webdriver.common.by.By）
-        # 第二个元素为指定的条件
-        # 如： `(By.ID, 'content')`
+        # 等待条件 参考 Selenium 用法
         self.wait_until = wait_until
         # `wait_until` 的等待时间
         self.wait_time = wait_time
