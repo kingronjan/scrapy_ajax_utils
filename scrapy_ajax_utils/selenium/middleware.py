@@ -16,9 +16,9 @@ class SeleniumDownloadMiddleWare(object):
     """For selenium.
 
     注意：
-        缓存cookies需要浏览器User-Agent请求头版本与设置脚本(或Request)中的默认请求头保持一致
-        否则某些网站可能会对此做验证 导致cookies无效
-
+        缓存 cookies 需要浏览器 User-Agent 请求头版本
+        与设置脚本(或 Request)中的默认请求头保持一致
+        否则某些网站可能会对此做验证 导致 cookies 无效
     """
 
     def __init__(self, creator):
