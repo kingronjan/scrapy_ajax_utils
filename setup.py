@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='scrapy_ajax_utils',
-    version=0.125,
+    version=0.126,
     description=(
         'ajax utils for scrapy.'
     ),
