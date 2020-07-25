@@ -35,17 +35,7 @@ class SeleniumDownloadMiddleWare(object):
     @classmethod
     def from_crawler(cls, crawler):
         settings = crawler.settings
-        headless = settings.getbool('SELENIUM_HEADLESS', True)
-        disable_image = settings.get('SELENIUM_DISABLE_IMAGE', True)
-        driver_name = settings.get('SELENIUM_DRIVER_NAME', 'chrome')
-        executable_path = settings.get('SELENIUM_DRIVER_PATH')
-        user_agent = settings.get('USER_AGENT')
-        creator = Webdriver(headless=headless,
-                            disable_image=disable_image,
-                            driver_name=driver_name,
-                            executable_path=executable_path,
-                            user_agent=user_agent)
-        dm = cls(creator)
+        dm = cls(_make_driver_creator_from_settings(settings))
         crawler.signals.connect(dm.closed, signal=signals.spider_closed)
         return dm
 
@@ -115,19 +105,67 @@ class SeleniumDownloadMiddleWare(object):
             logger.debug('Selenium closed')
 
 
-
 class SeleniumNoBlockingDownloadMiddleWare(SeleniumDownloadMiddleWare):
     """
     需设置 TWISTED_REACTOR = 'twisted.internet.asyncioreactor.AsyncioSelectorReactor'
     参考：https://doc.scrapy.org/en/latest/topics/asyncio.html
     """
-    def __init__(self, creator):
+    lock = asyncio.Lock()
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        max_drivers = crawler.settings.get('SELENIUM_MAX_DRIVERS', 5)
+        dm = cls(_make_driver_creator_from_settings(crawler.settings), max_drivers)
+        crawler.signals.connect(dm.closed, signal=signals.spider_closed)
+        return dm
+
+    def __init__(self, creator, max_drivers):
         super().__init__(creator)
+        self.max_drivers = max_drivers
         self.loop = asyncio.get_event_loop()
+        self.launched_drivers = []
 
     async def process_request(self, request, spider):
         if not isinstance(request, SeleniumRequest) or self.has_cached_cookies(request):
             return
 
-        with self.creator.driver() as driver:
-            return await self.loop.run_in_executor(None, self.process_by_driver, request, spider, driver)
+        async with self.lock:
+            if len(self.launched_drivers) < self.max_drivers:
+                self.launched_drivers.append(DriverItem(self.creator.driver()))
+
+        for driver_item in self.launched_drivers:
+            if driver_item.is_idle:
+                driver_item.is_idle = False
+                response = await self.loop.run_in_executor(None, self.process_by_driver, request, spider, driver_item.driver)
+                driver_item.is_idle = True
+                return response
+        else:
+            # Maybe next time ..
+            request.dont_filter = True
+            return request
+
+    def closed(self):
+        for driver_item in self.launched_drivers:
+            driver_item.driver.quit()
+        super().closed()
+
+
+class DriverItem(object):
+
+    def __init__(self, driver):
+        self.driver = driver
+        self.is_idle = True
+
+
+def _make_driver_creator_from_settings(settings):
+    headless = settings.getbool('SELENIUM_HEADLESS', True)
+    disable_image = settings.get('SELENIUM_DISABLE_IMAGE', True)
+    driver_name = settings.get('SELENIUM_DRIVER_NAME', 'chrome')
+    executable_path = settings.get('SELENIUM_DRIVER_PATH')
+    user_agent = settings.get('USER_AGENT')
+    creator = Webdriver(headless=headless,
+                        disable_image=disable_image,
+                        driver_name=driver_name,
+                        executable_path=executable_path,
+                        user_agent=user_agent)
+    return creator
