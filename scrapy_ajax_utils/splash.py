@@ -25,14 +25,14 @@ class SplashRequest(_SplashRequest):
     def __init__(self, url, *args, lua_script=None, js_script=None, keep_cookies=True, wait=2,
                  **kwargs):
         kwargs.setdefault('dont_send_headers', False)
-        _args = kwargs.setdefault('args', {})
-        _args['wait'] = wait
-        is_exec = kwargs.setdefault('endpoint', 'execute')
-        if is_exec == 'execute':
+        splash_args = kwargs.setdefault('args', {})
+        splash_args['wait'] = wait
+        endpoint = kwargs.setdefault('endpoint', 'execute')
+        if endpoint == 'execute':
             if lua_script:
-                _args['lua_source'] = lua_script
+                splash_args['lua_source'] = lua_script
             else:
-                _args['lua_source'] = render_lua_script(js_script, keep_cookies)
+                splash_args['lua_source'] = render_lua_script(js_script, keep_cookies)
         super().__init__(url, *args, **kwargs)
 
 

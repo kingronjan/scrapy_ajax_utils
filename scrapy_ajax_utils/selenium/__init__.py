@@ -11,7 +11,7 @@ def selenium_support(spider_cls):
     from scrapy_ajax_utils.utils import add_settings_to_spider
 
     settings = {
-        'DOWNLOADER_MIDDLEWARES': {'scrapy_ajax_utils.selenium.SeleniumDownloadMiddleWare': 600}
+        'DOWNLOADER_MIDDLEWARES': {'scrapy_ajax_utils.selenium.SeleniumNoBlockingDownloadMiddleWare': 600}
     }
     return add_settings_to_spider(spider_cls, settings)
 
@@ -19,8 +19,4 @@ def selenium_support(spider_cls):
 # 便于其它文件导入
 from .driver import webdriver
 from .request import SeleniumRequest
-from .middleware import SeleniumDownloadMiddleWare
-
-from selenium.webdriver.common.by import By
-
-SeleniumBy = By
+from .middleware import SeleniumDownloadMiddleWare, SeleniumNoBlockingDownloadMiddleWare

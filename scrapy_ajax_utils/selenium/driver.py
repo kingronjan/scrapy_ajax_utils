@@ -1,38 +1,73 @@
-from selenium import webdriver as _webdriver
-from scrapy.utils.project import get_project_settings
+from selenium import webdriver
 
 
-def webdriver(driver_name='chrome', executable_path=None,
-              headless=True, disable_image=True, user_agent=None, options=None):
-    if user_agent is None:
-        settings = get_project_settings()
-        user_agent = settings['DEFAULT_REQUEST_HEADERS'].get('User-Agent')
+class Webdriver(object):
+    """Selenium drivers"""
+    DRIVER_CLS = {
+        'firefox': webdriver.Firefox,
+        'chrome': webdriver.Chrome
+    }
 
-    if driver_name == 'firefox':
-        if executable_path is None:
-            executable_path = 'geckodriver'
-        if options is None:
-            options = _webdriver.FirefoxOptions()
-            options.headless = headless
-            if disable_image:
-                options.set_preference('permissions.default.image', 2)
-            options.set_preference('general.useragent.override', user_agent)
-        # service_log_path: nul -> close log file, only work for windows.
-        return _webdriver.Firefox(options=options, executable_path=executable_path, service_log_path='nul')
+    def __init__(self, driver_name='chrome', executable_path=None,
+                 headless=True, disable_image=True, user_agent=None, options=None):
+        self.driver_name = driver_name
+        self.headless = headless
+        self.disable_image = disable_image
+        self.user_agent = user_agent
+        self.executable_path = executable_path
+        self._options = options
 
-    elif driver_name == 'chrome':
-        if executable_path is None:
-            executable_path = 'chromedriver'
-        if options is None:
-            options = _webdriver.ChromeOptions()
-            options.headless = headless
-            options.add_argument(f"--user-agent={user_agent}")
-            options.add_argument('--disable-gpu')
-            if disable_image:
-                options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
-            # 规避检测
-            options.add_experimental_option('excludeSwitches', ['enable-automation', ])
-        return _webdriver.Chrome(options=options, executable_path=executable_path)
+    def driver(self):
+        if self.driver_name not in self.DRIVER_CLS:
+            raise ValueError(f'not support driver: {self.driver_name}')
 
-    else:
-        raise ValueError(f'Not support driver name: {driver_name}')
+        driver_cls = self.DRIVER_CLS[self.driver_name]
+        kwargs = {'executable_path': self.executable_path, 'options': self.options()}
+
+        if self.driver_name == 'firefox':
+            # Close log file, only work for windows.
+            kwargs['service_log_path'] = 'nul'
+
+        driver = driver_cls(**kwargs)
+        self._prepare(driver)
+        return driver
+
+    def options(self):
+        if self._options is not None:
+            return self._options
+        if self.driver_name == 'firefox':
+            return self._firefox_options()
+        elif self.driver_name == 'chrome':
+            return self._chrome_options()
+
+    def _chrome_options(self):
+        options = webdriver.ChromeOptions()
+        options.headless = self.headless
+        options.add_argument('--disable-gpu')
+        if self.user_agent:
+            options.add_argument(f"--user-agent={self.user_agent}")
+        if self.disable_image:
+            options.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
+        # 规避检测
+        options.add_experimental_option('excludeSwitches', ['enable-automation', ])
+        return options
+
+    def _firefox_options(self):
+        options = webdriver.FirefoxOptions()
+        options.headless = self.headless
+        if self.disable_image:
+            options.set_preference('permissions.default.image', 2)
+        if self.user_agent:
+            options.set_preference('general.useragent.override', self.user_agent)
+        return options
+
+    def _prepare(self, driver):
+        if isinstance(driver, webdriver.Chrome):
+            # Remove `window.navigator.webdriver`.
+            driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+                "source": """
+                Object.defineProperty(navigator, 'webdriver', {
+                  get: () => undefined
+                })
+              """
+            })
