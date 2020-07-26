@@ -1,3 +1,4 @@
+from scrapy.http import HtmlResponse
 from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
 
@@ -46,7 +47,7 @@ class _WebDriver(object):
         self._driver = driver
         self._is_idle = False
 
-    def __getattribute__(self, item):
+    def __getattr__(self, item):
         return getattr(self._driver, item)
 
     def set_idle(self):
@@ -58,6 +59,12 @@ class _WebDriver(object):
     @property
     def is_idle(self):
         return self._is_idle
+
+    def current_response(self, request):
+        return HtmlResponse(self.current_url,
+                            body=str.encode(self.page_source),
+                            encoding='utf-8',
+                            request=request)
 
 
 def make_options(driver_name, headless=True, disable_image=True, user_agent=None):

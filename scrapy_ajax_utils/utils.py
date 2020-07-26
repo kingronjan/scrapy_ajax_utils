@@ -20,9 +20,3 @@ def add_settings_to_spider(spider_cls, settings: dict):
                 s[k] = v
     spider_cls.custom_settings = s
     return spider_cls
-
-
-def extract_domain_from_url(url):
-    d = url.split('://')[-1]
-    d = d.split('/')[0]
-    return d
