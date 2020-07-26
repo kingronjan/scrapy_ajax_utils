@@ -45,7 +45,6 @@ class _WebDriver(object):
     """As agent of the webdriver.WebDriver"""
     def __init__(self, driver: RemoteWebDriver):
         self._driver = driver
-        self._is_idle = False
 
     def __getattr__(self, item):
         return getattr(self._driver, item)
