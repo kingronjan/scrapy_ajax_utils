@@ -50,16 +50,6 @@ class _WebDriver(object):
     def __getattr__(self, item):
         return getattr(self._driver, item)
 
-    def set_idle(self):
-        self._is_idle = True
-
-    def set_busy(self):
-        self._is_idle = False
-
-    @property
-    def is_idle(self):
-        return self._is_idle
-
     def current_response(self, request):
         return HtmlResponse(self.current_url,
                             body=str.encode(self.page_source),

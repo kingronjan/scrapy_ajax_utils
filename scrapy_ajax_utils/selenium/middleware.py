@@ -4,12 +4,11 @@ import threading
 from scrapy import signals
 from scrapy.http import Request, Response
 from selenium.webdriver.support.ui import WebDriverWait
+from twisted.internet import threads, reactor
+from twisted.python.threadpool import ThreadPool
 
 from scrapy_ajax_utils.selenium.browser import Browser
 from scrapy_ajax_utils.selenium.request import SeleniumRequest
-
-from twisted.internet import threads, reactor
-from twisted.python.threadpool import ThreadPool
 
 logger = logging.getLogger(__name__)
 
@@ -93,9 +92,8 @@ def _make_browser_from_settings(settings):
     driver_name = settings.get('SELENIUM_DRIVER_NAME', 'chrome')
     executable_path = settings.get('SELENIUM_DRIVER_PATH')
     user_agent = settings.get('USER_AGENT')
-    creator = Browser(headless=headless,
-                      disable_image=disable_image,
-                      driver_name=driver_name,
-                      executable_path=executable_path,
-                      user_agent=user_agent)
-    return creator
+    return Browser(headless=headless,
+                   disable_image=disable_image,
+                   driver_name=driver_name,
+                   executable_path=executable_path,
+                   user_agent=user_agent)
