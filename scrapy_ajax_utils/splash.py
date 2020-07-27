@@ -37,9 +37,6 @@ class SplashRequest(_SplashRequest):
 
 
 class SplashCookiesMiddleware(_SplashCookiesMiddleware):
-    """
-    传递 cookies 给 request 交由 scrapy 处理
-    """
 
     def process_response(self, request, response, spider):
         if not isinstance(response, SplashJsonResponse):
@@ -52,39 +49,15 @@ class SplashCookiesMiddleware(_SplashCookiesMiddleware):
 
 
 def splash_support(spider_cls):
-    """spider 装饰器
-
-    为 spider 添加 splash 相关设置
-
-    """
+    """Spider class decorator to add splash settings to spider"""
     return add_settings_to_spider(spider_cls, SPLASH_SETTINGS)
 
 
 def render_lua_script(js_script=None, keep_cookies=True):
-    """生成lua脚本
-    js脚本不支持传参，如果需要传参可参考下面的重写lua脚本
-    如果有执行结果，返回字段为 js_result
-    渲染的结果可能会有多余的空行，但不影响使用
+    """make lua script and return
 
-    如果参数均为默认值，则完整脚本如下：
-    `
-        function main(splash, args)
-            splash:init_cookies(splash.args.cookies)
-            splash:go({
-                splash.args.url,
-                headers=splash.args.headers,
-                http_method=splash.args.http_method,
-                body=splash.args.body,
-                })
-            assert(splash:wait(args.wait))
-            return {
-                cookies = splash:get_cookies(),
-                html = splash:html(),
-            }
-            end
-    `
-    :param js_script: js脚本
-    :param keep_cookies: 是否传递cookies
+    :param js_script: javascript to execute
+                the result will save to 'js_result'
     """
     if js_script:
         js_script = js_script.strip('\n')

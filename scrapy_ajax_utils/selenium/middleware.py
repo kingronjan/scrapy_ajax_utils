@@ -59,7 +59,7 @@ class SeleniumDownloaderMiddleware(object):
         if request.wait_until:
             WebDriverWait(driver, request.wait_time).until(request.wait_until)
 
-        # Execute javascript code and save the result to meta.
+        # Execute javascript code and put the result to meta.
         if request.script:
             request.meta['js_result'] = driver.execute_script(request.script)
 

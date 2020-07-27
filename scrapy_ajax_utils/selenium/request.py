@@ -1,8 +1,4 @@
-import logging
-
 import scrapy
-
-logger = logging.getLogger(__name__)
 
 
 class SeleniumRequest(scrapy.Request):
@@ -26,7 +22,7 @@ class SeleniumRequest(scrapy.Request):
 
         :param handler: function to handle the driver
                     the function only accept 3 arguments:
-                        driver: the instance of scrapy_ajax_utils.selenium.browser._WebDriver
+                        driver: the instance of `scrapy_ajax_utils.selenium.browser._WebDriver`
                         request: current request
                         spider: current spider
 
@@ -39,7 +35,7 @@ class SeleniumRequest(scrapy.Request):
                     `scrapy.Request` or `scrapy.Response`, it will be returned in the
                     'process_request' method of downloader middleware immediately
 
-        :param kwargs: argument will send to `scrapy.Request`
+        :param kwargs: keyword arguments to pass to `scrapy.Request`
         """
         self.wait_until = wait_until
         self.wait_time = wait_time
