@@ -11,10 +11,11 @@ class Browser(object):
         'chrome': webdriver.Chrome
     }
 
-    def __init__(self, driver_name='chrome', executable_path=None, options=None, **opt_kw):
+    def __init__(self, driver_name='chrome', executable_path=None, options=None, page_load_time_out=30, **opt_kw):
         assert driver_name in self.support_driver_map, f'{driver_name} not be supported!'
         self.driver_name = driver_name
         self.executable_path = executable_path
+        self.page_load_time_out = page_load_time_out
         if options is not None:
             self.options = options
         else:
@@ -26,6 +27,7 @@ class Browser(object):
         if self.driver_name == 'firefox':
             kwargs['service_log_path'] = 'nul'
         driver = self.support_driver_map[self.driver_name](**kwargs)
+        driver.set_page_load_timeout(self.page_load_time_out)
         self.prepare_driver(driver)
         return _WebDriver(driver)
 
