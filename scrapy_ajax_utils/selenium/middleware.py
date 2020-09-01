@@ -3,7 +3,10 @@ import threading
 
 from scrapy import signals
 from scrapy.http import Request, Response
+
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
+
 from twisted.internet import threads, reactor
 from twisted.python.threadpool import ThreadPool
 
@@ -44,7 +47,11 @@ class SeleniumDownloaderMiddleware(object):
 
     def download_by_driver(self, request, spider):
         driver = self.get_driver()
-        driver.get(request.url)
+
+        try:
+            driver.get(request.url)
+        except TimeoutException:
+            spider.logger.info(f'page download timeout (with selenium): {request.url}')
 
         # XXX: Check cookies.
         # if request.cookies:

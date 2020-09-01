@@ -51,6 +51,12 @@ class _WebDriver(object):
     def __getattr__(self, item):
         return getattr(self._driver, item)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._driver.quit()
+
     def current_response(self, request):
         return HtmlResponse(self.current_url,
                             body=str.encode(self.page_source),
