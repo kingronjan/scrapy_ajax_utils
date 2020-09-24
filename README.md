@@ -18,6 +18,16 @@ SELENIUM_DRIVER_PATH = None
 
 # Default: True
 SELENIUM_HEADLESS = True
+
+# Default: 30
+SELENIUM_DRIVER_PAGE_LOAD_TIMEOUT = 30
+
+# Set the min/max concurrent drivers to download page.
+# Default: 3
+# SELENIUM_MIN_DRIVERS = 5
+
+# Default: 5
+# SELENIUM_MAX_DRIVERS = 10
 ```
 Use in your spider:
 ```python
