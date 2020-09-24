@@ -1,6 +1,10 @@
 from scrapy.http import HtmlResponse
+from scrapy.downloadermiddlewares.cookies import CookiesMiddleware
+
 from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
+
+_format_cookie = CookiesMiddleware()._format_cookie
 
 
 class Browser(object):
@@ -58,10 +62,13 @@ class _WebDriver(object):
         self._driver.quit()
 
     def current_response(self, request):
+        cookies = filter(None, (_format_cookie(c, request) for c in self.get_cookies()))
+        headers = {'Set-Cookie': cookies}
         return HtmlResponse(self.current_url,
                             body=str.encode(self.page_source),
                             encoding='utf-8',
-                            request=request)
+                            request=request,
+                            headers=headers)
 
 
 def make_options(driver_name, headless=True, disable_image=True, user_agent=None):
