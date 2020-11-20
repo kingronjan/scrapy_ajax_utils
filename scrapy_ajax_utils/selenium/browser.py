@@ -2,7 +2,6 @@ from scrapy.http import HtmlResponse
 from scrapy.downloadermiddlewares.cookies import CookiesMiddleware
 
 from selenium import webdriver
-from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
 
 _format_cookie = CookiesMiddleware()._format_cookie
 
@@ -33,7 +32,7 @@ class Browser(object):
         driver = self.support_driver_map[self.driver_name](**kwargs)
         driver.set_page_load_timeout(self.page_load_time_out)
         self.prepare_driver(driver)
-        return _WebDriver(driver)
+        return wrap_driver(driver)
 
     def prepare_driver(self, driver):
         if isinstance(driver, webdriver.Chrome):
@@ -47,28 +46,17 @@ class Browser(object):
             })
 
 
-class _WebDriver(object):
-    """As agent of the webdriver.WebDriver"""
-    def __init__(self, driver: RemoteWebDriver):
-        self._driver = driver
-
-    def __getattr__(self, item):
-        return getattr(self._driver, item)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._driver.quit()
-
-    def current_response(self, request):
-        cookies = filter(None, (_format_cookie(c, request) for c in self.get_cookies()))
+def wrap_driver(driver):
+    def current_resp(request):
+        cookies = filter(None, (_format_cookie(c, request) for c in driver.get_cookies()))
         headers = {'Set-Cookie': cookies}
-        return HtmlResponse(self.current_url,
-                            body=str.encode(self.page_source),
+        return HtmlResponse(driver.current_url,
+                            body=str.encode(driver.page_source),
                             encoding='utf-8',
                             request=request,
                             headers=headers)
+    driver.current_resp = current_resp
+    return driver
 
 
 def make_options(driver_name, headless=True, disable_image=True, user_agent=None):

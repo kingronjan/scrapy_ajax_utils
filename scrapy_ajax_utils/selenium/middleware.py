@@ -75,7 +75,7 @@ class SeleniumDownloaderMiddleware(object):
             if isinstance(result, (Request, Response)):
                 return result
 
-        return driver.current_response(request)
+        return driver.current_resp(request)
 
     def get_driver(self):
         try:
