@@ -102,7 +102,7 @@ def _make_browser_from_settings(settings):
     page_load_time_out = settings.get('SELENIUM_DRIVER_PAGE_LOAD_TIMEOUT', 30)
     return Browser(headless=headless,
                    disable_image=disable_image,
-                   driver_name=driver_name,
+                   name=driver_name,
                    executable_path=executable_path,
                    user_agent=user_agent,
                    page_load_time_out=page_load_time_out)

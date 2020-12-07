@@ -9,27 +9,27 @@ _format_cookie = CookiesMiddleware()._format_cookie
 class Browser(object):
     """Browser to make drivers"""
 
-    support_driver_map = {
+    support_names = {
         'firefox': webdriver.Firefox,
         'chrome': webdriver.Chrome
     }
 
-    def __init__(self, driver_name='chrome', executable_path=None, options=None, page_load_time_out=30, **opt_kw):
-        assert driver_name in self.support_driver_map, f'{driver_name} not be supported!'
-        self.driver_name = driver_name
+    def __init__(self, name='chrome', executable_path=None, options=None, page_load_time_out=30, **opt_kw):
+        assert name in self.support_names, f'{name} not be supported!'
+        self.name = name
         self.executable_path = executable_path
         self.page_load_time_out = page_load_time_out
         if options is not None:
             self.options = options
         else:
-            self.options = make_options(self.driver_name, **opt_kw)
+            self.options = make_options(self.name, **opt_kw)
 
     def driver(self):
         kwargs = {'executable_path': self.executable_path, 'options': self.options}
         # Close log file, only works for windows.
-        if self.driver_name == 'firefox':
+        if self.name == 'firefox':
             kwargs['service_log_path'] = 'nul'
-        driver = self.support_driver_map[self.driver_name](**kwargs)
+        driver = self.support_names[self.name](**kwargs)
         driver.set_page_load_timeout(self.page_load_time_out)
         self.prepare_driver(driver)
         return wrap_driver(driver)
@@ -59,8 +59,8 @@ def wrap_driver(driver):
     return driver
 
 
-def make_options(driver_name, headless=True, disable_image=True, user_agent=None):
-    if driver_name == 'chrome':
+def make_options(name, headless=True, disable_image=True, user_agent=None):
+    if name == 'chrome':
         options = webdriver.ChromeOptions()
         options.headless = headless
         options.add_argument('--disable-gpu')
@@ -71,7 +71,7 @@ def make_options(driver_name, headless=True, disable_image=True, user_agent=None
         options.add_experimental_option('excludeSwitches', ['enable-automation', ])
         return options
 
-    elif driver_name == 'firefox':
+    elif name == 'firefox':
         options = webdriver.FirefoxOptions()
         options.headless = headless
         if disable_image:
