@@ -26,7 +26,7 @@ class Browser(object):
 
     def driver(self):
         kwargs = {'executable_path': self.executable_path, 'options': self.options}
-        # Close log file, only works for windows.
+        # Close log file, only works on windows.
         if self.name == 'firefox':
             kwargs['service_log_path'] = 'nul'
         driver = self.support_names[self.name](**kwargs)
