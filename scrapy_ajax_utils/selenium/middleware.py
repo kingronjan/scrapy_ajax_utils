@@ -54,17 +54,13 @@ class SeleniumDownloaderMiddleware(object):
             spider.logger.info(f'page download timeout (with selenium): {request.url}')
 
         # XXX: Check cookies.
-        # if request.cookies:
-        #     if isinstance(request.cookies, list):
-        #         for cookie in request.cookies:
-        #             driver.add_cookie(cookie)
-        #     else:
-        #         for k, v in request.cookies.items():
-        #             driver.add_cookie({'name': k, 'value': v})
-        #     driver.get(request.url)
 
         if request.wait_until:
-            WebDriverWait(driver, request.wait_time).until(request.wait_until)
+            try:
+                WebDriverWait(driver, request.wait_time).until(request.wait_until)
+            except TimeoutException:
+                spider.logger.warning(f'page wait timeout (condition: {request.wait_until.locator}), '
+                                      'the request will continue with rendered page.')
 
         # Execute javascript code and put the result to meta.
         if request.script:
